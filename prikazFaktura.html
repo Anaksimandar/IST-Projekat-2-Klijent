@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="index.html">Pocetna</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="prikazPreduzeca.html">Preduzece</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="prikazFaktura.html">Faktura</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+          <main>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>PIB prodavaca</th>
+                  <th>PIB kupca</th>
+                  <th>Datum generisanja</th>
+                  <th>Datum valute</th>
+                  <th>Stavke fakure</th>
+                  <th>Ukupno</th>
+                  <th>Tip fakture</th>
+                </tr>
+              </thead>
+              <tbody id="prikazFaktura"></tbody>
+              
+            </table>
+          </main>
+          <div hidden class="alert alert-info"></div>
+    </div>
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Stavke fakture</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <table class="table">
+              <thead>
+                <th>Naziv</th>
+                <th>Cena</th>
+                <th>Jedinica mere</th>
+                <th>Kolicina</th>
+                
+              </thead>
+              <tbody id="prikazStavki"></tbody>
+            </table>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    </div>
+    
+
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<script src="klijent.js"></script>
+<script>
+  let prikazFaktura = document.querySelector("#prikazFaktura");
+  let prikazStavki = document.querySelector("#prikazStavki");
+  radSaFakturama.prikaz = prikazFaktura;
+  radSaStavkamaFakture.prikaz = prikazStavki;
+  
+  radSaFakturama.dostaviFakture();
+  
+</script>

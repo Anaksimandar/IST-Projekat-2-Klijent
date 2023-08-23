@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="index.html">Pocetna</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="prikazPreduzeca.html">Preduzece</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="prikazFaktura.html">Faktura</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+          <main>
+            <div class="container-fluid my-4">
+              <form id="formaDodajPreduzece">
+                  <div class="row">
+                      <div class="col">
+                          <input type="number" id="pib_prodaje"  name="pib_prodaje" class="form-control" required placeholder="PIB preduzeca(prodaje)">
+                      </div>
+                      <div class="col">
+                          <input type="number" id="pib_kupuje"   name="pib_kupuje" required class="form-control" placeholder="PIB preduzeca(kupuje)">
+                      </div>
+                  </div>
+                  <div id="pib_neuspesno" hidden class="alert alert-danger my-3">PIB mora da sadrzi 8 brojeva</div>
+                  <div id="pib_uspesno"  hidden class="alert alert-success my-3">Ispravan PIB</div>
+
+                  <div class="row my-4">
+                    <div class="col">
+                      <label for="datum_generisanja">Datum generisanja:</label>
+                      <input type="date" id="datum_generisanja" name="datum_generisanja" required class="form-control">
+                    </div>
+                      
+                    <div class="col">
+                      <label for="datum_valute">Datum valute:</label>
+                      <input type="date" id="datum_valute" name="datum_valute" required class="form-control">
+                    </div>
+                  </div>
+                  <div class="row my-4">
+                      <h2>Rad sa stavkama:</h2>
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Naziv</th>
+                            <th>Cena</th>
+                            <th>Jedinica mere</th>
+                            <th>kolicina</th>
+                          </tr>
+                        </thead>
+                        <tbody id="prikazStavki"></tbody>
+                      </table>
+                  </div>
+                  <div class="row my-4">
+                    <div class="col">
+                      <input class="form-control" id="naziv" type="text" name="naziv" placeholder="Unesite naziv stavke">
+                    </div>
+                    <div class="col">
+                      <input class="form-control" id="cena" type="number" name="cena" placeholder="Unesite cenu stavke">
+                    </div>
+                  </div>
+                  <div class="row my-4">
+                    <div class="col">
+                      <input class="form-control" id="kolicina" type="number" name="kolicina" placeholder="Unesite kolicinu">
+                    </div>
+                    <div class="col">
+                      <input class="form-control" id="jedinica_mere" type="text" name="jedinica_mere" placeholder="Unesite jedinicu mere:">
+                    </div>
+                  </div>
+                  <div class="row my-4">
+                    <div class="col">
+                      <button id="dodajStavku" class="btn btn-success btn-lg">Dodaj stavku</button>
+                    </div>
+                  </div>
+                  
+                  <div class="row my-4">
+                    <div class="col">
+                      <select class="form-select" name="tip_fakture" id="tip_fakture">
+                        <option value="ulazna">Ulazna</option>
+                        <option value="izlazna">Izlazna</option>
+                      </select>
+                    </div>
+                      <div class="col">
+                          <input type="number" readonly id="ukupno" name="ukupno" class="form-control" placeholder="Ukupno">
+                      </div>
+                      <div class="col">
+                          <button id="dodajFakturu" class="btn btn-success">Sacuvaj izmene</button>
+                          <a href="index.html" class="btn btn-danger">Ponisti</a>
+                      </div>
+                  </div>
+              </form>
+              <div hidden id="uspesna_izmena" class="alert alert-success"></div>
+              <div hidden id="neuspesna_izmena" class="alert alert-danger"></div>
+          </div>
+          </main>
+    </div>
+    
+</body>
+</html>
+<script src="klijent.js"></script>
+<script>
+  $("#dodajFakturu").click((function(){
+        setInterval(() => {
+            $(".alert").attr("hidden",true);
+            
+        }, 5000);
+    }))
+    $("#dodajStavku").click((e)=>{
+      e.preventDefault();
+      let naziv = $("#naziv").val();
+      let cena = $("#cena").val();
+      let kolicina = $("#kolicina").val();
+      let jedinicaMere = $("#jedinica_mere").val();
+      radSaStavkamaFakture.dodajStavku(naziv,cena,kolicina,jedinicaMere);
+    })
+    let id = document.location.search.substring(1);
+    let prikazStavki = document.querySelector("#prikazStavki");
+    let pibProdaje = document.querySelector("#pib_prodaje");
+    let pibKupuje = document.querySelector("#pib_kupuje");
+    let datumGenerisanja = document.querySelector("#datum_generisanja");
+    let datumValute = document.querySelector("#datum_valute");
+    let tipFakture = document.querySelector("#tip_fakture");
+    let ukupno = document.querySelector("#ukupno");
+    radSaStavkamaFakture.prikazUkupno = ukupno;
+    radSaFakturama.getFakturaById(id,pibKupuje,pibProdaje,datumGenerisanja,datumValute,prikazStavki,tipFakture,ukupno);
+    pibProdaje.value = 12;
+    $("#dodajFakturu").click((e)=>{
+      e.preventDefault();
+      let elementi = document.querySelectorAll("#stavka");
+      let pibPreduzecaKupuje = document.querySelector("#pib_kupuje").value;
+      let pibPreduzecaProdaje= document.querySelector("#pib_prodaje").value;
+      let datumValute = document.querySelector("#datum_valute").value;
+      let datumGenerisanja = document.querySelector("#datum_generisanja").value;       
+      let tipFakture = document.querySelector("#tip_fakture").value; 
+      radSaFakturama.izmeniFakturu(id,pibPreduzecaKupuje,pibPreduzecaProdaje,datumValute,datumGenerisanja,elementi,tipFakture);
+    })
+    
+    
+</script>
