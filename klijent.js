@@ -8,7 +8,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 var settingsGET = {
-    "async": true,
+    "async": false,
     "crossDomain": true,
     "url": "http://localhost:5050",
     "method": "GET"
@@ -21,12 +21,12 @@ var radSaPreduzecima = /** @class */ (function () {
             "async": true,
             "crossDomain": true,
             "url": "http://localhost:5050/preduzece/" + pib,
-            "method": "DELETE"
+            "method": "DELETE",
         }).done(function (response) {
             $(".alert").removeAttr("hidden");
             $(".alert").text(response);
             console.log(response);
-            radSaPreduzecima.dostaviPreduzeca();
+            _a.dostaviPreduzeca();
         })
             .fail(function (err) {
             $(".alert").removeAttr("hidden");
@@ -34,38 +34,41 @@ var radSaPreduzecima = /** @class */ (function () {
             console.log(err);
         });
     };
-    radSaPreduzecima.getPreduzeceByPib = function (pib, pibPolje, naziv, ime, prezime, mail, ulica, broj, telefon) {
+    radSaPreduzecima.getPreduzeceByPib = function (pib) {
+        var pronadjenoPreduzece;
+        console.log(pib);
         $.ajax({
-            "async": true,
+            "async": false,
             "crossDomain": true,
             "url": "http://localhost:5050/preduzece/" + pib,
-            "method": "GET"
+            "method": "GET",
         }).done(function (response) {
-            console.log(response);
-            pibPolje.value = response.pib;
-            naziv.value = response.nazivPreduzeca;
-            ime.value = response.odgovornoLice.ime;
-            prezime.value = response.odgovornoLice.prezime;
-            telefon.value = response.telefon;
-            mail.value = response.email;
-            ulica.value = response.adresa.ulica;
-            broj.value = response.adresa.broj;
+            pronadjenoPreduzece = response;
         })
-            .fail(function (err) {
-            console.log(err);
+            .fail(function (jqXHR) {
+            console.log(jqXHR);
+            alert(jqXHR.responseText);
         });
+        return pronadjenoPreduzece;
     };
-    radSaPreduzecima.izmeniPreduzece = function (pib, noviPib, naziv, ime, prezime, ulica, broj, mejl, telefon) {
+    radSaPreduzecima.izmeniPreduzece = function (pib, naziv, ime, prezime, ulica, broj, mejl, telefon) {
+        var naziv = naziv.val();
+        var ime = ime.val();
+        var prezime = prezime.val();
+        var telefon = telefon.val();
+        var mejl = mejl.val();
+        var ulica = ulica.val();
+        var broj = broj.val();
         var odgovornoLice = {
             ime: ime,
             prezime: prezime
         };
         var adresa = {
             ulica: ulica,
-            broj: broj
+            broj: broj,
         };
         var novoPreduzece = {
-            pib: noviPib,
+            pib: pib,
             nazivPreduzeca: naziv,
             odgovornoLice: odgovornoLice,
             adresa: adresa,
@@ -73,11 +76,11 @@ var radSaPreduzecima = /** @class */ (function () {
             telefon: telefon
         };
         console.log(novoPreduzece);
-        if (Validacija.proveraPib(pib) == true && Validacija.proveraPib(noviPib) == true && Validacija.proveraImena(ime) && Validacija.proveraImena(prezime)) {
+        if (Validacija.proveraPib(pib) == true && Validacija.proveraImena(ime) && Validacija.proveraImena(prezime)) {
             $.ajax({
-                "async": true,
+                "async": false,
                 "crossDomain": true,
-                "url": "http://localhost:5050/preduzece/" + pib,
+                "url": "http://localhost:5050/preduzece/izmeni/" + pib,
                 "method": "PUT",
                 "data": JSON.stringify(novoPreduzece),
                 "headers": {
@@ -99,14 +102,14 @@ var radSaPreduzecima = /** @class */ (function () {
         if (unos.trim().length == 0) {
             $(".alert-info").removeAttr('hidden');
             $(".alert-info").text('Unesite parametre za pretragu');
-            radSaPreduzecima.dostaviPreduzeca();
+            _a.dostaviPreduzeca();
         }
         else {
             $.ajax({
                 "async": true,
                 "crossDomain": true,
                 "url": "http://localhost:5050/preduzece/filtriraj/" + unos.toString(),
-                "method": "GET"
+                "method": "GET",
             }).done(function (response) {
                 _this.prikazPreduzeca(response);
                 console.log(response);
@@ -128,7 +131,7 @@ var radSaPreduzecima = /** @class */ (function () {
                 "async": true,
                 "crossDomain": true,
                 "url": "http://localhost:5050/faktura/bilans/" + pib + "/" + datum_od + "/" + datum_do,
-                "method": "GET"
+                "method": "GET",
             }).done(function (response) {
                 prikaz.innerHTML = "Bilans za zeljeni period je:" + response;
             })
@@ -194,8 +197,7 @@ var radSaPreduzecima = /** @class */ (function () {
             console.log('sve je u redu');
             $(".alert-success").removeAttr("hidden").text('Preduzece je uspesno dodato');
         })
-            .fail(function (jqXHR, responseText) {
-            console.log('Doslo je do greske' + responseText);
+            .fail(function (jqXHR) {
             $("#proveraForme").removeAttr("hidden").text(jqXHR.responseText);
         });
     };
@@ -204,7 +206,6 @@ var radSaPreduzecima = /** @class */ (function () {
 var izlistavanjeFaktura = /** @class */ (function () {
     function izlistavanjeFaktura() {
     }
-    //static brojStrana:number = 0;
     izlistavanjeFaktura.postojeStrane = function () {
         if (izlistavanjeFaktura.fakture.length == 0) {
             return false;
@@ -214,23 +215,21 @@ var izlistavanjeFaktura = /** @class */ (function () {
     ;
     izlistavanjeFaktura.sledecaStrana = function () {
         if (izlistavanjeFaktura.postojeStrane() == true) {
-            if (izlistavanjeFaktura.trenutnaStrana + 1 > izlistavanjeFaktura.fakture.length - 1) {
-                izlistavanjeFaktura.trenutnaStrana = 0;
+            if (izlistavanjeFaktura.trenutnaStrana + 2 <= izlistavanjeFaktura.maxNumberOfPages) { // +1 za pocetak od 1 (def. 0) +2 jer je pocetna strana vec na 1 i provera onda krece od 2
+                console.log('trenutna:', izlistavanjeFaktura.trenutnaStrana);
+                console.log('max', izlistavanjeFaktura.maxNumberOfPages);
+                izlistavanjeFaktura.trenutnaStrana++;
             }
-            else {
-                izlistavanjeFaktura.trenutnaStrana += 1;
-            }
+            console.log(izlistavanjeFaktura.maxNumberOfPages);
             izlistavanjeFaktura.prikazFakture();
         }
     };
     izlistavanjeFaktura.prethodnaStrana = function () {
         if (izlistavanjeFaktura.postojeStrane() == true) {
-            if (izlistavanjeFaktura.trenutnaStrana - 1 < 0) {
-                izlistavanjeFaktura.trenutnaStrana = izlistavanjeFaktura.fakture.length - 1;
+            if (izlistavanjeFaktura.trenutnaStrana > 0) {
+                izlistavanjeFaktura.trenutnaStrana--;
             }
-            else {
-                izlistavanjeFaktura.trenutnaStrana -= 1;
-            }
+            console.log(this.trenutnaStrana);
             izlistavanjeFaktura.prikazFakture();
         }
     };
@@ -240,6 +239,7 @@ var izlistavanjeFaktura = /** @class */ (function () {
         this.rezultatiPretrage.appendChild(text);
     };
     izlistavanjeFaktura.prikazFakture = function () {
+        izlistavanjeFaktura.maxNumberOfPages = izlistavanjeFaktura.maxPageFunction(izlistavanjeFaktura.fakture.length);
         this.rezultatPretrage();
         if (this.fakture.length == 0) {
             this.brojStrane.innerHTML = "";
@@ -248,8 +248,15 @@ var izlistavanjeFaktura = /** @class */ (function () {
         else {
             this.brojStrane.innerHTML = "".concat(this.trenutnaStrana + 1);
             this.prikaz.innerHTML = "";
-            this.prikaz.innerHTML +=
-                "\n            <tr>\n                <th scope=\"col\">".concat(this.fakture[this.trenutnaStrana].pibPreduzeceKupuje, "</th>\n                <th scope=\"col\">").concat(this.fakture[this.trenutnaStrana].pibPreduzeceProdaje, "</th>\n                <th scope=\"col\">").concat(this.fakture[this.trenutnaStrana].datumGenerisanja, "</th>\n                <th scope=\"col\">").concat(this.fakture[this.trenutnaStrana].datumValute, "</th>\n                <th scope=\"col\"><button data-toggle=\"modal\" data-target=\"#modal\" onclick=\"radSaFakturama.prikazStavkiFakture(").concat(this.fakture[this.trenutnaStrana].idFakture, ")\" class=\"btn btn-info btn-sm\">Prikazi stavke</button></th>\n                <th scope=\"col\">").concat(this.fakture[this.trenutnaStrana].ukupno, "</th>\n                <th scope=\"col\">").concat(this.fakture[this.trenutnaStrana].tipFakture, "</th>\n                <th scope=\"col\"><a href='./izmeniFakturu.html?").concat(this.fakture[this.trenutnaStrana].idFakture, "' id = 'prikazFakture' class=\"btn btn-info\">Izmeni</a></th>\n                <th scope=\"col\"><button onclick='radSaFakturama.obrisiFakturu(").concat(this.fakture[this.trenutnaStrana].idFakture, ",radSaFakturama.vratiSveFakturePreduzeca)' class=\"btn btn-danger\">Obrisi</button></th>\n            </tr>\n            ");
+            for (var i = 0; i < 5; i++) {
+                if (i + this.trenutnaStrana * 5 == this.fakture.length) {
+                    return;
+                }
+                var formatiranDatumValute = Validacija.kraciZapisDatuma(this.fakture[i + this.trenutnaStrana * 5].datumValute.toString());
+                var formatiranDatumGenerisanja = Validacija.kraciZapisDatuma(this.fakture[i + this.trenutnaStrana * 5].datumGenerisanja.toString());
+                this.prikaz.innerHTML +=
+                    "\n                        <tr>\n                            <th scope=\"col\">".concat(this.fakture[i + this.trenutnaStrana * 5].pibPreduzeceKupuje, "</th>\n                            <th scope=\"col\">").concat(this.fakture[i + this.trenutnaStrana * 5].pibPreduzeceProdaje, "</th>\n                            <th scope=\"col\">").concat(formatiranDatumGenerisanja, "</th>\n                            <th scope=\"col\">").concat(formatiranDatumValute, "</th>\n                            <th scope=\"col\"><button data-toggle=\"modal\" data-target=\"#modal\" onclick=\"radSaFakturama.prikazStavkiFakture(").concat(this.fakture[i].idFakture, ")\" class=\"btn btn-info btn-sm\">Prikazi stavke</button></th>\n                            <th scope=\"col\">").concat(this.fakture[i + this.trenutnaStrana * 5].ukupno, "</th>\n                            <th scope=\"col\">").concat(this.fakture[i + this.trenutnaStrana * 5].tipFakture, "</th>\n                            <th scope=\"col\"><a href='./izmeniFakturu.html?").concat(this.fakture[i].idFakture, "' id = 'prikazFakture' class=\"btn btn-info\">Izmeni</a></th>\n                            <th scope=\"col\"><button onclick='radSaFakturama.obrisiFakturu(").concat(this.fakture[i + this.trenutnaStrana * 5].idFakture, ")' class=\"btn btn-danger\">Obrisi</button></th>\n                        </tr>\n                    ");
+            }
         }
     };
     izlistavanjeFaktura.postojiLiStavka = function (stavka, listaStavki) {
@@ -263,27 +270,17 @@ var izlistavanjeFaktura = /** @class */ (function () {
         }
         return postoji;
     };
-    izlistavanjeFaktura.pretragaPoParametrima = function (unos) {
-        var _this = this;
-        izlistavanjeFaktura.fakture = izlistavanjeFaktura.neFiltriraneFakture;
-        izlistavanjeFaktura.trenutnaStrana = 0;
-        var pronadjeneFakture = [];
-        if (unos == '') {
-            radSaFakturama.vratiSveFakturePreduzeca();
-        }
-        else {
-            this.fakture.forEach(function (f) {
-                if (unos.toString() == f.ukupno.toString() || _this.postojiLiStavka(unos, f.stavkeFakture)) {
-                    pronadjeneFakture.push(f);
-                }
-            });
-            izlistavanjeFaktura.fakture = pronadjeneFakture;
-            izlistavanjeFaktura.prikazFakture();
-        }
-    };
-    izlistavanjeFaktura.neFiltriraneFakture = [];
     izlistavanjeFaktura.fakture = [];
     izlistavanjeFaktura.trenutnaStrana = 0;
+    izlistavanjeFaktura.maxNumberOfPages = 0;
+    //static brojStrana:number = 0;
+    izlistavanjeFaktura.maxPageFunction = function (brojElemenata) {
+        var brojStranica = Math.floor(brojElemenata / 5);
+        if (brojStranica % 5 != 0) {
+            brojStranica++;
+        }
+        return brojStranica;
+    };
     return izlistavanjeFaktura;
 }());
 var radSaFakturama = /** @class */ (function () {
@@ -294,16 +291,12 @@ var radSaFakturama = /** @class */ (function () {
     radSaFakturama.vratiSveFakturePreduzeca = function () {
         //let fakture:Faktura[] = [];
         $.ajax({
-            "async": true,
+            "async": false,
             "crossDomain": true,
-            "url": "http://localhost:5050/faktura/preduzece/" + radSaFakturama.PIB,
-            "method": "GET"
+            "url": "http://localhost:5050/faktura/preduzece/" + _b.PIB,
+            "method": "GET",
         }).done(function (response) {
-            // response.datumGenerisanja = Validacija.kraciZapisDatuma(response.datumGenerisanja);
-            // response.datumValute = Validacija.kraciZapisDatuma(response.datumValute);
             izlistavanjeFaktura.fakture = response;
-            izlistavanjeFaktura.neFiltriraneFakture = response;
-            izlistavanjeFaktura.prikazFakture();
         })
             .fail(function (jqXHR) {
             izlistavanjeFaktura.prikaz.innerHTML = "";
@@ -311,6 +304,17 @@ var radSaFakturama = /** @class */ (function () {
             izlistavanjeFaktura.prikazFakture();
             $(".alert-warning").removeAttr('hidden');
             $(".alert-warning").text(jqXHR.responseText);
+        });
+    };
+    radSaFakturama.prikazFaktura = function (fakture) {
+        var _this = this;
+        this.prikaz.innerHTML = "";
+        console.log("prikaz", fakture);
+        fakture.forEach(function (f) {
+            var datumValute = Validacija.kraciZapisDatuma(f.datumValute.toString());
+            var datumGenerisanja = Validacija.kraciZapisDatuma(f.datumGenerisanja.toString());
+            _this.prikaz.innerHTML +=
+                "\n                <tr>\n                    <th scope=\"col\">".concat(f.pibPreduzeceKupuje, "</th>\n                    <th scope=\"col\">").concat(f.pibPreduzeceProdaje, "</th>\n                    <th scope=\"col\">").concat(datumGenerisanja, "</th>\n                    <th scope=\"col\">").concat(datumValute, "</th>\n                    <th scope=\"col\"><button data-toggle=\"modal\" data-target=\"#modal\" onclick='radSaFakturama.prikazStavkiFakture(").concat(f.idFakture, ")'  class=\"btn btn-info btn-sm\">Prikazi stavke</button></th>\n                    <th scope=\"col\">").concat(f.ukupno, "</th>\n                    <th scope=\"col\">").concat(f.tipFakture, "</th>\n                    <th scope=\"col\"><a href='izmeniFakturu.html?").concat(f.idFakture, "'class=\"btn btn-info\">Izmeni</a></th>\n                    <th scope=\"col\"><button class='btn btn-danger' onclick='radSaFakturama.obrisiFakturu(").concat(f.idFakture, ")' >Obri\u0161i</button></th>\n                </tr>\n                ");
         });
     };
     // Moguce ponavljanje koda radSaStavkama.prikazStavki
@@ -328,21 +332,22 @@ var radSaFakturama = /** @class */ (function () {
             $(".alert").text(err.responseText);
         });
     };
-    radSaFakturama.obrisiFakturu = function (idFakture, callback) {
+    radSaFakturama.obrisiFakturu = function (idFakture) {
+        var _this = this;
         $.ajax({
-            "async": true,
+            "async": false,
             "crossDomain": true,
             "url": "http://localhost:5050/faktura/" + idFakture,
-            "method": "DELETE"
+            "method": "DELETE",
         }).done(function (response) {
-            $(".alert-info").removeAttr("hidden");
-            $(".alert-info").text(response);
-            callback();
+            $("#uspesnoBrisanjeFaktureAlert").removeAttr("hidden");
+            $("#uspesnoBrisanjeFaktureAlert").text("Faktura je uspesno obrisana");
+            _this.fakture = response;
+            _b.prikazFaktura(_b.fakture);
         })
             .fail(function (err) {
             $(".alert-warning").removeAttr("hidden");
             $(".alert-warning").text(err.responseText);
-            callback();
         });
     };
     radSaFakturama.izmeniFakturu = function (id, pibPreduzecaKupuje, pibPreduzecaProdaje, datumValute, datumGenerisanja, elementi, tipFakture) {
@@ -408,7 +413,7 @@ var radSaFakturama = /** @class */ (function () {
             "async": true,
             "crossDomain": true,
             "url": "http://localhost:5050/faktura/" + id,
-            "method": "GET"
+            "method": "GET",
         }).done(function (response) {
             console.log(response);
             pibKupuje.value = response.pibPreduzeceKupuje;
@@ -431,6 +436,8 @@ var radSaFakturama = /** @class */ (function () {
         var formatiranDatumGenerisanja = Validacija.stringToDate(datumGenerisanja);
         var proveraPibPreduzecaKupuje = Validacija.proveraPib(pibPreduzecaKupuje);
         var proveraPibPreduzecaProdaje = Validacija.proveraPib(pibPreduzecaProdaje);
+        console.log(proveraPibPreduzecaKupuje);
+        console.log(proveraPibPreduzecaProdaje);
         var ukupno = Number($("#ukupno").val());
         elementi.forEach(function (e) {
             var deca = e.children;
@@ -459,6 +466,7 @@ var radSaFakturama = /** @class */ (function () {
                 ukupno: ukupno,
                 tipFakture: tipFakture
             };
+            console.log(novaFaktura);
             $.ajax({
                 "async": true,
                 "crossDomain": true,
@@ -469,12 +477,11 @@ var radSaFakturama = /** @class */ (function () {
                     "Content-Type": "application/json"
                 }
             }).done(function (jqXHR) {
-                alert(jqXHR.responseText);
-                $("#uspesno_dodavanje_fakture").removeAttr('hidden');
-                $("#uspesno_dodavanje_fakture").text(jqXHR.responseText);
+                $("#obavestenjeDodavanjeFaktureUspesno").removeAttr('hidden').text(jqXHR);
             })
                 .fail(function (jqXHR) {
-                alert("Greska pri dodavanju preduzeca" + jqXHR.responseText);
+                console.log(jqXHR);
+                $("#obavestenjeDodavanjeFaktureGreska").removeAttr('hidden').text(jqXHR.responseText);
             });
         }
         else {
@@ -482,19 +489,29 @@ var radSaFakturama = /** @class */ (function () {
             $("#pib_uspesno").attr('hidden', 'true');
         }
     };
+    radSaFakturama.filtrirajFakture = function (unos) {
+        $.ajax({
+            "async": true,
+            "crossDomain": true,
+            "url": "http://localhost:5050/faktura/filtriraj/" + unos.toString(),
+            "method": "GET"
+        }).done(function (response) {
+            _b.filtriraneFakture = response;
+            _b.prikazFaktura(_b.filtriraneFakture);
+        })
+            .fail(function (jqXHR) {
+            console.log(jqXHR);
+        });
+    };
     var _b;
     _b = radSaFakturama;
+    radSaFakturama.fakture = [];
+    radSaFakturama.filtriraneFakture = [];
     radSaFakturama.dostaviFakture = function () {
-        _b.prikaz.innerHTML = "";
         settingsGET.url = "http://localhost:5050/faktura";
         $.ajax(settingsGET)
             .done(function (response) {
-            response.forEach(function (f) {
-                // f.datumValute = Validacija.kraciZapisDatuma(f.datumValute);
-                // f.datumGenerisanja = Validacija.kraciZapisDatuma(f.datumGenerisanja);
-                _b.prikaz.innerHTML +=
-                    "\n                <tr>\n                    <th scope=\"col\">".concat(f.pibPreduzeceKupuje, "</th>\n                    <th scope=\"col\">").concat(f.pibPreduzeceProdaje, "</th>\n                    <th scope=\"col\">").concat(f.datumGenerisanja, "</th>\n                    <th scope=\"col\">").concat(f.datumValute, "</th>\n                    <th scope=\"col\"><button data-toggle=\"modal\" data-target=\"#modal\" onclick='radSaFakturama.prikazStavkiFakture(").concat(f.idFakture, ")'  class=\"btn btn-info btn-sm\">Prikazi stavke</button></th>\n                    <th scope=\"col\">").concat(f.ukupno, "</th>\n                    <th scope=\"col\">").concat(f.tipFakture, "</th>\n                    <th scope=\"col\"><a href='izmeniFakturu.html?").concat(f.idFakture, "'class=\"btn btn-info\">Izmeni</a></th>\n                    <th scope=\"col\"><button class='btn btn-danger' onclick='radSaFakturama.obrisiFakturu(").concat(f.idFakture, ",radSaFakturama.dostaviFakture)' >Obri\u0161i</button></th>\n                </tr>\n                ");
-            });
+            _b.fakture = response;
         })
             .fail(function (err) {
             $(".alert").removeAttr("hidden");
@@ -511,17 +528,6 @@ var radSaStavkamaFakture = /** @class */ (function () {
         this.stavke = __spreadArray([], noveStavke, true);
         this.prikazStavki();
     };
-    radSaStavkamaFakture.postojiLiStavka = function (stavka) {
-        var postoji = false;
-        for (var i = 0; i < this.stavke.length; i++) {
-            if (this.stavke[i].cena == stavka.cena && this.stavke[i].jedinicaMere == stavka.jedinicaMere && this.stavke[i].naziv == stavka.naziv) {
-                this.stavke[i].kolicina += stavka.kolicina;
-                postoji = true;
-                break;
-            }
-        }
-        return postoji;
-    };
     var _c;
     _c = radSaStavkamaFakture;
     radSaStavkamaFakture.stavke = [];
@@ -529,6 +535,7 @@ var radSaStavkamaFakture = /** @class */ (function () {
         _c.prikaz.innerHTML = "";
         console.log(_c.stavke);
         var ukupno = 0;
+        console.log(_c.stavke);
         _c.stavke.forEach(function (s) {
             _c.prikaz.innerHTML +=
                 "\n                    <tr id=\"stavka\">\n                        <th scope=\"col\">".concat(s.naziv, "</th>\n                        <th scope=\"col\">").concat(s.cena, "</th>\n                        <th scope=\"col\">").concat(s.jedinicaMere, "</th>\n                        <th scope=\"col\">").concat(s.kolicina, "</th>\n                        <th scope=\"col\"><button onclick='radSaStavkamaFakture.ukloniStavku(").concat(s.id_stavke, ")' class='btn btn-danger' >Ukloni</button></th>\n                        <th scope=\"col\" hidden>").concat(s.id_stavke, "</th>\n                    </tr>\n                ");
@@ -546,13 +553,12 @@ var radSaStavkamaFakture = /** @class */ (function () {
         return id = _c.stavke[_c.stavke.length - 1].id_stavke + 1;
     };
     radSaStavkamaFakture.dodajStavku = function (naziv, cena, kolicina, jedinica_mere) {
-        var id = radSaStavkamaFakture.dodeliID();
+        var id = _c.dodeliID();
         var novaStavka = { "id_stavke": id, "naziv": naziv, "cena": cena, "kolicina": kolicina, "jedinicaMere": jedinica_mere };
-        console.log(_c.postojiLiStavka(novaStavka));
-        if (_c.postojiLiStavka(novaStavka) == false) {
-            _c.stavke.push(novaStavka);
-        }
+        _c.stavke.push(novaStavka);
         _c.prikazStavki();
+        // if(this.postojiLiStavka(novaStavka) == false){
+        // }
     };
     return radSaStavkamaFakture;
 }());
@@ -577,14 +583,10 @@ var Validacija = /** @class */ (function () {
         var formatiranDatum = new Date(Number(godinaMesecDan[0]), Number(godinaMesecDan[1]) - 1, Number(godinaMesecDan[2]), new Date().getHours(), new Date().getMinutes());
         return formatiranDatum;
     };
-    Validacija.kraciZapisDatuma = function (response) {
-        // response.forEach(element => {
-        //     element.datumGenerisanja = element.datumdatumGenerisanja.split("T")[0].split("-");
-        //     element.datumValute = element.datumValute.split("T")[0].split("-");
-        // });
-        // let godinaMesecDan = datum.split("T")[0].split("-");
-        // let formatiranDatum = `${godinaMesecDan[2]}-${godinaMesecDan[1]}-${godinaMesecDan[0]}`
-        // return formatiranDatum;
+    Validacija.kraciZapisDatuma = function (neobradjenDatum) {
+        console.log(neobradjenDatum);
+        var formatiranDatum = neobradjenDatum.split("T")[0];
+        return formatiranDatum;
     };
     return Validacija;
 }());

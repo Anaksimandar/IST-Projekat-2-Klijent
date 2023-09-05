@@ -13,18 +13,20 @@
         <header>
             <nav class="navbar navbar-expand-lg bg-light">
                 <div class="container-fluid">
-                  <a class="navbar-brand" href="index.html">Pocetna</a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
                   <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                      <li class="nav-item">
-                        <a class="nav-link" href="prikazPreduzeca.html">Preduzece</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="prikazFaktura.html">Faktura</a>
-                      </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Pocetna</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="prikazPreduzeca.html">Preduzece</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="prikazFaktura.html">Faktura</a>
+                        </li>
                       
                     </ul>
                   </div>
@@ -106,6 +108,7 @@
         $("#pib").keyup(() => {
             if ($("#pib").val().length != 9) {
                 $("#pibAlert").attr("hidden", false);   
+                proveraPIB = false;
             }
             else {
                 $("#pibAlert").attr("hidden", true);
@@ -118,6 +121,8 @@
             var inputValue = $("#naziv").val();
             if (inputValue.length < 3 || /\d/.test(inputValue)) {
                 $("#preduzeceAlert").attr("hidden", false);
+                proveraNaziv = false;
+
             }
             else {
                 $("#preduzeceAlert").attr("hidden", true);
@@ -130,6 +135,7 @@
             var inputValue = $("#ime").val();
             if (inputValue.length < 3 || /\d/.test(inputValue)) {
                 $("#imeAlert").attr("hidden", false);
+                proveraIme = false;
             }
             else {
                 $("#imeAlert").attr("hidden", true);
@@ -142,6 +148,7 @@
             var inputValue = $("#prezime").val();
             if (inputValue.length < 3 || /\d/.test(inputValue)) {
                 $("#prezimeAlert").attr("hidden", false);
+                proveraPrezime = false;
             }
             else {
                 $("#prezimeAlert").attr("hidden", true);
@@ -155,6 +162,7 @@
             var inputValue = $("#telefon").val();
             if (/^\+381\d{9}$/.test(inputValue) == false) {
                 $("#telefonAlert").attr("hidden", false);
+                proveraTelefon = false;
             }
             else {
                 $("#telefonAlert").attr("hidden", true);
@@ -167,6 +175,7 @@
             var emailValue = $("#mejl").val();
             if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(emailValue) == false) {
                 $("#mailAlert").attr("hidden", false);
+                proveraMejl = false;
             }
             else {
                 $("#mailAlert").attr("hidden", true);
@@ -180,6 +189,7 @@
             var inputValue = $("#ulica").val();
             if (inputValue.length < 3) {
                 $("#ulicaAlert").attr("hidden", false);
+                proveraUlica = false;
                 
             }
             else {
@@ -193,12 +203,12 @@
             var inputValue = $("#broj").val();
             if (/\d/.test(inputValue) == false) {
                 $("#brojAlert").attr("hidden", false);
+                proveraBroj = false;
                 
             }
             else {
                 $("#brojAlert").attr("hidden", true);
                 proveraBroj = true;
-                alert(proveraBroj);
             }
         })
 
@@ -227,22 +237,7 @@
         
     })
 
-   
 
-    
-
-    //  // provera prezimena
-    //  $("#naziv").keyup(()=>{
-    //     if($("#naziv").val().length < 3){
-    //         $("#preduzeceAlert").attr("hidden",false);
-    //     }
-    //     else{
-    //         $("#preduzeceAlert").attr("hidden",true);
-    //     }
-    // })
-
-
-    
   
 
 
