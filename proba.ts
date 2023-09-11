@@ -1,20 +1,28 @@
-class Datum{
-    static datum_1:Date;
-    static datum_2:Date;
-    // constructor(datum_1:string,datum_2:string){
-    //     datum_1 = new Date()
-    // }
-    static prikazDatuma(){
-        alert('Prvi datum:'+ this.datum_1 + ' drugi datum: ' + this.datum_2);
-    }
-    static razlikaDani(){
-
-    }
-    static razlikaMeseci(){
-        
-    }
-    static razlikaGodine(){
-        
-    }
-    
+interface Firma{
+    naziv:string,
+    datum:Date
 }
+
+
+const listaPreduzeca: Firma[] = [
+    {naziv: 'preduzece1',datum:new Date(2023,6,13)},
+    {naziv: 'preduzece2', datum: new Date(2023, 7, 13) },
+    {naziv: 'preduzece3', datum: new Date(2022, 2, 13) },
+    {naziv: 'preduzece4', datum: new Date(2023, 6, 13) },
+    {naziv: 'preduzece5', datum: new Date(2024, 7, 12) },
+    {naziv: 'preduzece6', datum: new Date(2025, 2, 13) }
+];
+
+const sortirajDatume = (listaPreduzeca:Firma[])=>{
+    const sortirani:Firma[] = [];
+    for(let i = 0; i < listaPreduzeca.length-1;i++){
+        for(let j=i+1;i < listaPreduzeca.length;j++){
+            if(listaPreduzeca[i].datum>listaPreduzeca[j].datum){
+                console.log(listaPreduzeca[i].datum + " je veci od " + listaPreduzeca[j].datum);
+                
+            }
+        }
+    }
+}
+
+sortirajDatume(listaPreduzeca);

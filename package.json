@@ -4,11 +4,14 @@
   "description": "",
   "main": "klijent.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compileTs": "nodemon "
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/jquery": "^3.5.14"
+  },
+  "dependencies": {
+    "nodemon": "^3.0.1"
   }
 }

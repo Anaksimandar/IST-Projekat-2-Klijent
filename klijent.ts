@@ -26,7 +26,7 @@ interface OdgovornoLice{
 }
 
 interface StavkeFakture{
-    id_stavke:number,
+    idStavke:number,
     naziv:string,
     cena:number,
     jedinicaMere:string,
@@ -52,7 +52,7 @@ class radSaPreduzecima{
         preduzeca.forEach(p => {
             this.prikaz.innerHTML+=
                 `
-                <tr>
+                <tr class="preduzece">
                     <th id='pib' scope="col">${p.pib}</th>
                     <th scope="col">${p.nazivPreduzeca}</th>
                     <th scope="col">${p.odgovornoLice.ime + " "+ p.odgovornoLice.prezime}</th>
@@ -60,13 +60,14 @@ class radSaPreduzecima{
                     <th scope="col">${p.email}</th>
                     <th scope="col">${p.telefon}</th>
                     <th scope="col"><a href='./prikazFakturaZaPreduzece.html?${p.pib}' class="btn btn-info">Prikaz faktura</button></th>
-                    <th scope="col"><button data-toggle="modal" data-target="#prikazi_bilans" class='btn btn-info'>Bilans</button></th>
+                    <th scope="col"><button id="${p.pib}" data-toggle="modal" data-target="#prikazi_bilans" class='btn btn-info prikaziBilans'>Bilans</button></th>
                     <th scope="col"><a href='./izmeniPreduzece.html?${p.pib}' class='btn btn-info'>Izmeni</a></th>
                     <th scope="col"><button id="obrisiPreduzece" onclick='radSaPreduzecima.obrisiPreduzece(${p.pib})' class='btn btn-danger'>Obrisi</button></th>
                 </tr>
                 `;
             });
     }
+
     static dostaviPreduzeca = ()=>{
         this.prikaz.innerHTML = "";
         settingsGET.url = "http://localhost:5050/preduzece" ;
@@ -256,162 +257,30 @@ class radSaPreduzecima{
         
 
     }
-    static prikaziBilans(pib:number,datum_od:string,datum_do:string,prikaz:HTMLElement){
-        if(datum_do == "" || datum_od == ""){
-            $(".alert-info").removeAttr("hidden");
-            $(".alert-info").text("Unesite datum");
-        }
-        else{
-            $.ajax({
-                "async":true,
-                "crossDomain":true,
-                "url":"http://localhost:5050/faktura/bilans/"+pib+"/"+datum_od+"/"+datum_do,
-                "method":"GET",
-                
-            }).done((response)=>{
-                prikaz.innerHTML = "Bilans za zeljeni period je:" +response;
-                
-            })
-            .fail((jqXHR)=>{
-                $(".alert-info").removeAttr('hidden');
-                console.log(jqXHR);
-                alert(jqXHR.responseText);
-                $(".alert-info").text(jqXHR.responseText);
-    
-            })
-        }
+    static prikaziBilans(pib:number,datum_od:string,datum_do:string,prikaz:JQuery){
+        $.ajax({
+            "async": true,
+            "crossDomain": true,
+            "url": "http://localhost:5050/faktura/bilans/" + pib + "/" + datum_od + "/" + datum_do,
+            "method": "GET",
+            "headers":{
+                "Content-Type": "application/json"
+            }
+
+        }).done((response) => {
+            prikaz.html("Bilans: " + response);
         
+        })
+        .fail((jqXHR) => {
+            prikaz.html(jqXHR.responseText)     
+        })
     }
     
 
 }
 class izlistavanjeFaktura{
-    static fakture:Faktura[] = [];
-    static trenutnaStrana:number = 0;
-    static maxNumberOfPages = 0;
-    static prikaz:HTMLElement;
-    static brojStrane:HTMLElement;
-    static rezultatiPretrage:HTMLElement;
-    //static brojStrana:number = 0;
     
-    static maxPageFunction = (brojElemenata:number):number=>{
-        let brojStranica = Math.floor(brojElemenata / 5);
-        if(brojStranica % 5 != 0){
-            brojStranica++;
-        } 
-        return brojStranica;
-    }
-
-    static postojeStrane(){
-        if(izlistavanjeFaktura.fakture.length == 0){
-            return false;
-        }
-        return true;
-    };
-    static sledecaStrana(){
-        if(izlistavanjeFaktura.postojeStrane() == true){
-            if(izlistavanjeFaktura.trenutnaStrana+2 <= izlistavanjeFaktura.maxNumberOfPages){ // +1 za pocetak od 1 (def. 0) +2 jer je pocetna strana vec na 1 i provera onda krece od 2
-                console.log('trenutna:' , izlistavanjeFaktura.trenutnaStrana);
-                console.log('max', izlistavanjeFaktura.maxNumberOfPages )
-                
-                izlistavanjeFaktura.trenutnaStrana ++;
-            }
-            console.log(izlistavanjeFaktura.maxNumberOfPages);
-            
-            izlistavanjeFaktura.prikazFakture();
-            
-        }
-                
-        
-        
-    }
-    static prethodnaStrana(){
-        if(izlistavanjeFaktura.postojeStrane() == true){
-            if(izlistavanjeFaktura.trenutnaStrana > 0){
-                izlistavanjeFaktura.trenutnaStrana --;
-            }
-            console.log(this.trenutnaStrana);
-
-            izlistavanjeFaktura.prikazFakture();
-            
-        }
-         
-    }
-    static rezultatPretrage(){
-        this.rezultatiPretrage.innerHTML = "Rezultati pretrage:";
-        let text = document.createTextNode(`${this.fakture.length}`);
-        this.rezultatiPretrage.appendChild(text);
-    }
-    static prikazFakture(){
-        izlistavanjeFaktura.maxNumberOfPages = izlistavanjeFaktura.maxPageFunction(izlistavanjeFaktura.fakture.length);
-        this.rezultatPretrage();
-        if(this.fakture.length == 0){            
-            this.brojStrane.innerHTML = "";
-            this.prikaz.innerHTML = "";
-        }
-        else{
-            
-            this.brojStrane.innerHTML = `${this.trenutnaStrana+1}`;
-            this.prikaz.innerHTML = "";
-
-            for(let i = 0; i < 5; i++){
-                if (i + this.trenutnaStrana * 5 == this.fakture.length){
-                    return;
-                }
-                let formatiranDatumValute = Validacija.kraciZapisDatuma(this.fakture[i + this.trenutnaStrana * 5].datumValute.toString());
-                let formatiranDatumGenerisanja = Validacija.kraciZapisDatuma(this.fakture[i + this.trenutnaStrana * 5].datumGenerisanja.toString());
-                this.prikaz.innerHTML +=
-                    `
-                        <tr>
-                            <th scope="col">${this.fakture[i+this.trenutnaStrana*5].pibPreduzeceKupuje}</th>
-                            <th scope="col">${this.fakture[i + this.trenutnaStrana * 5].pibPreduzeceProdaje}</th>
-                            <th scope="col">${formatiranDatumGenerisanja}</th>
-                            <th scope="col">${formatiranDatumValute}</th>
-                            <th scope="col"><button data-toggle="modal" data-target="#modal" onclick="radSaFakturama.prikazStavkiFakture(${this.fakture[i].idFakture})" class="btn btn-info btn-sm">Prikazi stavke</button></th>
-                            <th scope="col">${this.fakture[i + this.trenutnaStrana * 5].ukupno}</th>
-                            <th scope="col">${this.fakture[i + this.trenutnaStrana * 5].tipFakture}</th>
-                            <th scope="col"><a href='./izmeniFakturu.html?${this.fakture[i].idFakture}' id = 'prikazFakture' class="btn btn-info">Izmeni</a></th>
-                            <th scope="col"><button onclick='radSaFakturama.obrisiFakturu(${this.fakture[i + this.trenutnaStrana * 5].idFakture})' class="btn btn-danger">Obrisi</button></th>
-                        </tr>
-                    `;
-            }
-        }
-        
-        
-    }
-    static postojiLiStavka(stavka:string,listaStavki:Array<StavkeFakture>):boolean{
-        let postoji:boolean = false;
-        stavka.toLowerCase();
-        for(let i = 0;i<listaStavki.length;i++){
-            if(listaStavki[i].naziv.toLowerCase().includes(stavka)){
-                postoji = true;
-                break;
-             }
-        }
-        return postoji;
-    }
-    // static pretragaPoParametrima(unos:string){
-    //     izlistavanjeFaktura.fakture = izlistavanjeFaktura.neFiltriraneFakture;
-    //     izlistavanjeFaktura.trenutnaStrana = 0;
-    //     let pronadjeneFakture:Array<Faktura>  = [];
-        
-    //     if(unos == ''){
-    //         radSaFakturama.vratiSveFakturePreduzeca();
-    //     }
-    //     else{
-    //         this.fakture.forEach(f => {
-    //             if(unos.toString() == f.ukupno.toString() || this.postojiLiStavka(unos,f.stavkeFakture) ){
-    //                 pronadjeneFakture.push(f);
-    //             }
-
-    //         });
-    //         izlistavanjeFaktura.fakture = pronadjeneFakture;
-    //         izlistavanjeFaktura.prikazFakture();
-            
-            
-            
-    //     }
-    // }
+    
 }
 class radSaFakturama{
     static prikaz:HTMLElement;
@@ -467,8 +336,8 @@ class radSaFakturama{
             this.prikaz.innerHTML +=
                 `
                 <tr>
-                    <th scope="col">${f.pibPreduzeceKupuje}</th>
                     <th scope="col">${f.pibPreduzeceProdaje}</th>
+                    <th scope="col">${f.pibPreduzeceKupuje}</th>
                     <th scope="col">${datumGenerisanja}</th>
                     <th scope="col">${datumValute}</th>
                     <th scope="col"><button data-toggle="modal" data-target="#modal" onclick='radSaFakturama.prikazStavkiFakture(${f.idFakture})'  class="btn btn-info btn-sm">Prikazi stavke</button></th>
@@ -530,15 +399,8 @@ class radSaFakturama{
         
         
     }
-    static izmeniFakturu(id:number,pibPreduzecaKupuje:number,pibPreduzecaProdaje:number,datumValute:string,datumGenerisanja:string,elementi:NodeListOf<Element>,tipFakture:string){
+    static izmeniFakturu(idFakture:number,pibPreduzecaKupuje:number,pibPreduzecaProdaje:number,datumValute:string,datumGenerisanja:string,elementi:NodeListOf<Element>,tipFakture:string){
         let listaStavki:Array<StavkeFakture> = [];
-
-        let formatiranDatumValute:Date = Validacija.stringToDate(datumValute);
-        let formatiranDatumGenerisanja:Date = Validacija.stringToDate(datumGenerisanja);
-    
-        let proveraPibPreduzecaKupuje:boolean = Validacija.proveraPib(pibPreduzecaKupuje);
-        let proveraPibPreduzecaProdaje:boolean = Validacija.proveraPib(pibPreduzecaProdaje);
-        
 
         let ukupno:number = Number($("#ukupno").val());
         elementi.forEach(e => {
@@ -549,7 +411,7 @@ class radSaFakturama{
             var jedinicaMere = deca[2].innerHTML;
             var kolicina = parseInt(deca[3].innerHTML);
             var novaStavka:StavkeFakture =  {
-                "id_stavke":id,
+                "idStavke":id,
                 "naziv":naziv,
                 "cena":cena,
                 "jedinicaMere":jedinicaMere,
@@ -558,73 +420,62 @@ class radSaFakturama{
             listaStavki.push(novaStavka);
         });
 
-        if(proveraPibPreduzecaKupuje&& proveraPibPreduzecaProdaje){
-            $("#pib_uspesno").removeAttr("hidden");
-            let novaFaktura:Faktura = {
-                idFakture:id,
-                pibPreduzeceKupuje:pibPreduzecaProdaje,
-                pibPreduzeceProdaje:pibPreduzecaKupuje,
-                datumGenerisanja:formatiranDatumGenerisanja,
-                datumValute:formatiranDatumValute,//do kad treba da se plati
-                stavkeFakture:listaStavki,
-                ukupno:ukupno,
-                tipFakture:tipFakture
-            }
+        let novaFaktura:Faktura = {
+            idFakture:idFakture,
+            pibPreduzeceKupuje:pibPreduzecaKupuje,
+            pibPreduzeceProdaje:pibPreduzecaProdaje,
+            datumGenerisanja: new Date(datumGenerisanja),
+            datumValute: new Date(datumValute),
+            stavkeFakture:listaStavki,
+            ukupno:ukupno,
+            tipFakture:tipFakture
 
-            $.ajax({
-                "async":true,
-                "crossDomain":true,
-                "url":"http://localhost:5050/faktura/izmeni/"+id,
-                "method":"PUT",
-                "data":JSON.stringify(novaFaktura),
-                "headers":{
-                    "Content-Type":"application/json"
-                }
-            }).done((response)=>{
-                $("#uspesna_izmena").removeAttr("hidden");
-                $("#uspesna_izmena").text(response);
-    
-            })
-            .fail((jqXHR)=>{
-                 $("#neuspesna_izmena").removeAttr("hidden");
-                 $("#neuspesna_izmena").text(jqXHR.responseText);
-            })
-            }
-            // Problem pri slanju post zahteva, izgleda da ajax salje get zahtev(podaci su poslati preko zaglavlja) umesto post zahteva . . . 
-        else{
-            $("#pib_neuspesno").removeAttr("hidden");
 
         }
-            
+        console.log(novaFaktura);
+        
+        
+
+        $.ajax({
+            "async":true,
+            "crossDomain":true,
+            "url":"http://localhost:5050/faktura/izmeni/"+idFakture,
+            "method":"PUT",
+            "data":JSON.stringify(novaFaktura),
+            "headers":{
+                "Content-Type":"application/json"
+            }
+        }).done((response)=>{
+            console.log(response);
+            $("#obavestenjeDodavanjeFaktureUspesno").removeAttr("hidden");
+            $("#obavestenjeDodavanjeFaktureUspesno").text(response);
+
+        })
+        .fail((jqXHR)=>{
+             $("#obavestenjeDodavanjeFaktureGreska").removeAttr("hidden");
+             $("#obavestenjeDodavanjeFaktureGreska").text(jqXHR.responseText);
+        })
+        
             
         
     }
-    static getFakturaById(id:number,pibKupuje:HTMLInputElement,pibProdaje:HTMLInputElement,datumGenerisanja:HTMLInputElement,datumValute:HTMLInputElement,ispisStavki:HTMLElement,tipFakture:HTMLInputElement,ukupno:HTMLInputElement){
+
+    static getFakturaById(id:number):Faktura{
+        var pronadjenaFaktura:Faktura;
         $.ajax({
-            "async":true,
+            "async":false,
             "crossDomain":true,
             "url":"http://localhost:5050/faktura/"+id,
             "method":"GET",
         }).done((response)=>{
-            console.log(response);
-            
-            pibKupuje.value = response.pibPreduzeceKupuje;
-            pibProdaje.value = response.pibPreduzeceProdaje;
-            datumGenerisanja.value= response.datumGenerisanja.split("T")[0];
-            datumValute.value= response.datumValute.split("T")[0];
-            ukupno.value = response.ukupno;
-            tipFakture.value = response.tipFakture;
-            radSaStavkamaFakture.prikaz = ispisStavki;
-            radSaStavkamaFakture.stavke = response.stavkeFakture;
-            radSaStavkamaFakture.prikazStavki();
-
-            
-            
+            pronadjenaFaktura = response;  
         })
         .fail((jqXHR,responseText)=>{
-            alert("Greska pri dodavanju preduzeca" + responseText);
+            alert("Faktura ne postoji" + responseText);
         })
-            
+
+        return pronadjenaFaktura;
+        
     }
     static dodajFakturu(pibPreduzecaKupuje:number,pibPreduzecaProdaje:number,datumValute:string,datumGenerisanja:string,elementi:NodeListOf<Element>,tipFakture:string){ 
         let listaStavki:Array<StavkeFakture> = [];
@@ -648,7 +499,7 @@ class radSaFakturama{
             var jedinicaMere = deca[2].innerHTML;
             var kolicina = parseInt(deca[3].innerHTML);
             var novaStavka:StavkeFakture =  {
-                "id_stavke":id,
+                "idStavke":id,
                 "naziv":naziv,
                 "cena":cena,
                 "jedinicaMere":jedinicaMere,
@@ -723,7 +574,7 @@ class radSaFakturama{
 class radSaStavkamaFakture{
     static stavke:Array<StavkeFakture> = [];
     static prikaz:HTMLElement;
-    static prikazUkupno:HTMLInputElement;
+    static prikazUkupno:JQuery;
     static prikazStavki = ()=>{
         this.prikaz.innerHTML = "";
         console.log(this.stavke);
@@ -739,14 +590,16 @@ class radSaStavkamaFakture{
                         <th scope="col">${s.cena}</th>
                         <th scope="col">${s.jedinicaMere}</th>
                         <th scope="col">${s.kolicina}</th>
-                        <th scope="col"><button onclick='radSaStavkamaFakture.ukloniStavku(${s.id_stavke})' class='btn btn-danger' >Ukloni</button></th>
-                        <th scope="col" hidden>${s.id_stavke}</th>
+                        <th scope="col"><button onclick='radSaStavkamaFakture.ukloniStavku(${s.idStavke})' class='btn btn-danger'>Ukloni</button></th>
+                        <th scope="col" hidden>${s.idStavke}</th>
                     </tr>
                 `;
             
             ukupno += s.kolicina*s.cena;
         });
-        this.prikazUkupno.value = ukupno.toString();
+        console.log(ukupno);
+        
+        this.prikazUkupno.val(ukupno.toString());
         
     }
     static sacuvajStavkeFakture = ()=>{
@@ -757,37 +610,26 @@ class radSaStavkamaFakture{
         if(this.stavke.length < 1){
             return id = 1;
         }
-        return id = this.stavke[this.stavke.length-1].id_stavke+1;
+        return id = this.stavke[this.stavke.length-1].idStavke+1;
     }
     static dodajStavku = (naziv:string,cena:number,kolicina:number,jedinica_mere:string)=>{
         let id:number = radSaStavkamaFakture.dodeliID();
-        const novaStavka:StavkeFakture = {"id_stavke":id,"naziv":naziv,"cena":cena,"kolicina":kolicina,"jedinicaMere":jedinica_mere};
+        const novaStavka:StavkeFakture = {"idStavke":id,"naziv":naziv,"cena":cena,"kolicina":kolicina,"jedinicaMere":jedinica_mere};
         
         this.stavke.push(novaStavka);
         this.prikazStavki();
-
-        // if(this.postojiLiStavka(novaStavka) == false){
-            
-        // }
         
     }
-    static ukloniStavku(id_stavke:number){
-        const noveStavke = this.stavke.filter(s=>s.id_stavke != id_stavke);
+    static ukloniStavku(idStavke:number){
+        console.log(idStavke);
+        
+        const noveStavke = this.stavke.filter(s=>s.idStavke != idStavke);
+        console.log(noveStavke);
+        
         this.stavke = [...noveStavke];
         this.prikazStavki();
     }
-    // static postojiLiStavka(stavka:StavkeFakture):boolean{
-    //     let postoji:boolean = false;
-    //     for(let i = 0;i<this.stavke.length;i++){
-    //         if(this.stavke[i].cena == stavka.cena && this.stavke[i].jedinicaMere == stavka.jedinicaMere && this.stavke[i].naziv == stavka.naziv){
-    //             postoji = true;
-    //             break;
-
-    //         }
-            
-    //     }
-    //     return postoji;
-    // }
+    
 }
 
 class Validacija{

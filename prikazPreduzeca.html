@@ -40,6 +40,7 @@
                   <div class="col">
                     <button id="filtrirajPreduzeca" class="btn btn-primary">Pretraži</button>
                   </div>
+                  <div hidden class="alert alert-info my-2"></div>
                 </div>
               </form>
               <div>
@@ -61,23 +62,23 @@
                 </table>
               </div>
           </main>
-          <div hidden class="alert alert-info"></div>
           <!--Modal-->
           <div class="modal fade" id="prikazi_bilans" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <h5 class="modal-title" id="exampleModalLabel">Bilans</h5>
+                  <button type="button" id="close-modal" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
                 <div class="modal-body">
-                  Od<input type="date" id="pocetni_datum" class="form-control">
-                  Do<input type="date" id="krajnji_datum" class="form-control">
+                  Od<input type="date" id="pocetniDatum" class="form-control">
+                  Do<input type="date" id="krajnjiDatum" class="form-control">
                   <div id="prikazBilansa"></div>
-                  <div hidden class="alert alert-info"></div>
+                  <div hidden id="datumAlert" class="alert alert-info m-2">Pocetni datum mora biti pre krajnjeg datuma.</div>
                 </div>
+                <div hidden class="alert alert-danger mx-3">Unesite podatke</div>
                 <div class="modal-footer">
                   <button id="prikaziBilans" type="button" class="btn btn-primary">Prikazi bilans</button>
                 </div>
@@ -94,20 +95,52 @@
 
 <script src="./klijent.js"></script>
 <script>
-  $("#izmeniPreduzece").click(()=>{
-    alert("Izmeni");
-  })
-  $("#prikaziBilans").click((e)=>{
-    e.preventDefault();
-    setInterval(()=>{
-      $(".alert-info").attr("hidden","true");
-    },4000)
-    let pocetni_datum = document.querySelector("#pocetni_datum").value;
-    let krajnji_datum = document.querySelector("#krajnji_datum").value;
-    let pib = document.querySelector("#pib").innerHTML;
-    let prikaz = document.querySelector("#prikazBilansa");
-    radSaPreduzecima.prikaziBilans(pib,pocetni_datum,krajnji_datum,prikaz);
 
+  
+
+  var izabranoPreduzece;
+  var prikazBilansa = $("#prikazBilansa");
+  var prikazPreduzeca = document.querySelector("#prikazPreduzeca");
+  var proveraDatum = false;
+  // provera datuma
+
+  $("input[type=date]").change(()=>{
+    var datum1 = new Date($("#pocetniDatum").val());
+    var datum2 = new Date($("#krajnjiDatum").val());
+
+    if(datum1 >= datum2){
+      proveraDatum = false;
+      $("#datumAlert").attr("hidden",false);
+    }
+    else{
+      proveraDatum = true;
+      $("#datumAlert").attr("hidden", true);
+    }
+    
+
+  })
+
+  // close modal - reset date
+
+  $("#close-modal").click(()=>{
+      $("#pocetniDatum").val(new Date());
+      $("#krajnjiDatum").val(new Date());
+      prikazBilansa.html("");
+  })
+
+  
+  $("#prikaziBilans").click((e)=>{
+    var datum1 = $("#pocetniDatum").val();
+    var datum2 = $("#krajnjiDatum").val();
+    console.log(izabranoPreduzece);
+    e.preventDefault();
+    if(proveraDatum){
+      radSaPreduzecima.prikaziBilans(parseInt(izabranoPreduzece),datum1,datum2,prikazBilansa);
+      $(".alert-danger").attr("hidden",true);
+    }
+    else{
+      $(".alert-danger").attr("hidden", false);
+    }
   })
   
   $("#filtrirajPreduzeca ").click((e)=>{
@@ -116,8 +149,13 @@
     let unos = document.querySelector("#unos").value;
     radSaPreduzecima.filtrirajPreduzeca(unos);
   })
-  let prikaz = document.querySelector("#prikazPreduzeca");
-  radSaPreduzecima.prikaz = prikaz;
+  radSaPreduzecima.prikaz = prikazPreduzeca;
   radSaPreduzecima.dostaviPreduzeca();
+
+  // pozivamo na kraju jer element koji trazimo jos nije prikazan
+  $(".prikaziBilans").click(function (e) {
+    izabranoPreduzece = e.target.id;
+  })
+  
 </script>
 

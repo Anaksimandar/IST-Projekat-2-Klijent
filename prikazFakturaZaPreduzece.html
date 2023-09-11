@@ -116,11 +116,7 @@
 </html>
 <script src="./klijent.js"></script>
 <script> 
-    $().ready(()=>{
-      setInterval(()=>{
-          $(".alert-info").attr("hidden",true);
-      },5000)
-    })
+  
     
     var status = location.search.substring(1);
     var prikazFakture = document.querySelector("#prikazFakture");
@@ -141,21 +137,7 @@
     izlistavanjeFaktura.prikazFakture();
     
    // Filtriranje
-    
-    $("#pretraga").click(() => {
-      var unos = $("#filtrirajFakture").val();
-      if (unos) {
-        radSaFakturama.filtrirajFakture(unos);
-        izlistavanjeFaktura.prikazFakture();
-        $("#faktura-search-alert").attr("hidden", true);
-      }
-      else {
-        radSaFakturama.vratiSveFakturePreduzeca()
-        $("#faktura-search-alert").attr("hidden", false);
-      }
-
-
-    })
+  
     
    
 
