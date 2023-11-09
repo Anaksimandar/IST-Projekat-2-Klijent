@@ -1,0 +1,25 @@
+#prikazStranica{
+    display: flex;
+}
+
+.page-link{
+    color: aqua;
+    font-weight: 500;
+}
+
+.page-link:hover{
+    background-color: aqua;
+    color: white;
+}
+
+/*Paganizacija*/
+
+.active{
+    background-color: #0dcaf0!important;
+    color: white!important;
+}
+
+.btn-info{
+    color: white!important;
+}
+

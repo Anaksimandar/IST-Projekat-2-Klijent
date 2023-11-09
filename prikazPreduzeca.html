@@ -40,7 +40,7 @@
                   <div class="col">
                     <button id="filtrirajPreduzeca" class="btn btn-primary">Pretraži</button>
                   </div>
-                  <div hidden class="alert alert-info my-2"></div>
+                  
                 </div>
               </form>
               <div>
@@ -61,6 +61,7 @@
                   </tbody>
                 </table>
               </div>
+              <div hidden class="alert alert-info my-2"></div>
           </main>
           <!--Modal-->
           <div class="modal fade" id="prikazi_bilans" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -87,75 +88,17 @@
           </div>
  
 </div>
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  
+  <script type="module" src="./script/main/prikazPreduzeca.main.js"></script>
 </body>
 </html>
 
-<script src="./klijent.js"></script>
-<script>
 
-  
 
-  var izabranoPreduzece;
-  var prikazBilansa = $("#prikazBilansa");
-  var prikazPreduzeca = document.querySelector("#prikazPreduzeca");
-  var proveraDatum = false;
-  // provera datuma
 
-  $("input[type=date]").change(()=>{
-    var datum1 = new Date($("#pocetniDatum").val());
-    var datum2 = new Date($("#krajnjiDatum").val());
-
-    if(datum1 >= datum2){
-      proveraDatum = false;
-      $("#datumAlert").attr("hidden",false);
-    }
-    else{
-      proveraDatum = true;
-      $("#datumAlert").attr("hidden", true);
-    }
-    
-
-  })
-
-  // close modal - reset date
-
-  $("#close-modal").click(()=>{
-      $("#pocetniDatum").val(new Date());
-      $("#krajnjiDatum").val(new Date());
-      prikazBilansa.html("");
-  })
-
-  
-  $("#prikaziBilans").click((e)=>{
-    var datum1 = $("#pocetniDatum").val();
-    var datum2 = $("#krajnjiDatum").val();
-    console.log(izabranoPreduzece);
-    e.preventDefault();
-    if(proveraDatum){
-      radSaPreduzecima.prikaziBilans(parseInt(izabranoPreduzece),datum1,datum2,prikazBilansa);
-      $(".alert-danger").attr("hidden",true);
-    }
-    else{
-      $(".alert-danger").attr("hidden", false);
-    }
-  })
-  
-  $("#filtrirajPreduzeca ").click((e)=>{
-    e.preventDefault();
-    
-    let unos = document.querySelector("#unos").value;
-    radSaPreduzecima.filtrirajPreduzeca(unos);
-  })
-  radSaPreduzecima.prikaz = prikazPreduzeca;
-  radSaPreduzecima.dostaviPreduzeca();
-
-  // pozivamo na kraju jer element koji trazimo jos nije prikazan
-  $(".prikaziBilans").click(function (e) {
-    izabranoPreduzece = e.target.id;
-  })
-  
-</script>
+ 
 

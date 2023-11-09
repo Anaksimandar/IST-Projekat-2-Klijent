@@ -4,7 +4,7 @@
   "description": "",
   "main": "klijent.js",
   "scripts": {
-    "compileTs": "nodemon "
+    "start": "tsc --watch"
   },
   "author": "",
   "license": "ISC",
