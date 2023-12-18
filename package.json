@@ -4,14 +4,38 @@
   "description": "",
   "main": "klijent.js",
   "scripts": {
-    "start": "tsc --watch"
+    "start": "tsc --watch",
+    "test": "jest --watchAll --verbose --coverage"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/jquery": "^3.5.14"
+    "@babel/core": "^7.23.5",
+    "@babel/preset-env": "^7.23.5",
+    "@types/jest": "^29.5.10",
+    "@types/jquery": "^3.5.14",
+    "babel-jest": "^29.7.0"
   },
   "dependencies": {
+    "jest": "^29.7.0",
     "nodemon": "^3.0.1"
+  },
+  "jest": {
+    "type": "module",
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "transform": {
+      "^.+\\.[jt]sx?$": "babel-jest"
+    }
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
   }
 }

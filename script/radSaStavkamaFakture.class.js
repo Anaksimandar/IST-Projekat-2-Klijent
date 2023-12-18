@@ -10,25 +10,23 @@ export class radSaStavkamaFakture {
 _a = radSaStavkamaFakture;
 radSaStavkamaFakture.stavke = [];
 radSaStavkamaFakture.prikazStavki = () => {
-    _a.prikaz.innerHTML = "";
+    _a.prikaz.html("");
     console.log(_a.stavke);
     let ukupno = 0;
     _a.stavke.forEach(s => {
-        _a.prikaz.innerHTML +=
-            `
-                    <tr id="stavka">
+        _a.prikaz.append(`
+                    <tr class="stavka">
                         <th scope="col">${s.naziv}</th>
                         <th scope="col">${s.cena}</th>
                         <th scope="col">${s.jedinicaMere}</th>
                         <th scope="col">${s.kolicina}</th>
                         <th scope="col"><button id=${s.idStavke} class='btn btn-danger obrisiStavku'>Ukloni</button></th>
-                        <th scope="col" hidden>${s.idStavke}</th>
                     </tr>
-                `;
+                `);
         ukupno += s.kolicina * s.cena;
     });
     console.log(ukupno);
-    _a.prikazUkupno.val(ukupno.toString());
+    _a.prikazUkupno.val(ukupno);
 };
 radSaStavkamaFakture.sacuvajStavkeFakture = () => {
 };

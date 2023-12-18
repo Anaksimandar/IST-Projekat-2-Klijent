@@ -20,8 +20,8 @@ radSaStavkamaFakture.prikaz = prikaz;
 radSaStavkamaFakture.stavke = pronadjenaFaktura.stavkeFakture;
 radSaStavkamaFakture.prikazStavki();
 
-$(".obrisiStavku").click(function (event){
-    event.preventDefault();
+$("#prikazStavki").on('click','.stavka',function (event){
+    event.preventDefault();    
     let id = event.target.id;
     radSaStavkamaFakture.ukloniStavku(id);    
 })
@@ -39,6 +39,18 @@ var proveraNazivStavke = false;
 var proveraCenaStavke = false;
 var proveraJedinicaStavke = false;
 var proveraKolicina = false;
+
+const ocistiFormuZaDodavanjeStavki = ()=>{
+    $("#naziv").val('');
+    $("#cena").val('');
+    $("#kolicina").val('');
+    $("#jedinicaMere").val('');
+    $("#stavkaAlert").attr("hidden", true);
+    proveraNazivStavke = !proveraNazivStavke;
+    proveraCenaStavke = !proveraCenaStavke;
+    proveraJedinicaStavke = !proveraJedinicaStavke;
+    proveraKolicina = !proveraKolicina;
+}
 
 // provera pib prodaje
 $("#pibProdaje").keyup(() => {
@@ -79,8 +91,6 @@ $("input[type=date]").change(() => {
         proveraDatum = true;
     }
 })
-
-
 
 // provera naziva stavke
 $("#naziv").keyup(() => {
@@ -162,10 +172,16 @@ $("#dodajStavku").click(e => {
     var kolicina = $("#kolicina").val();
     if (proveraCenaStavke && proveraJedinicaStavke && proveraNazivStavke && proveraKolicina) {
         radSaStavkamaFakture.dodajStavku(nazivStavke, parseInt(cena), parseInt(kolicina), jedinicaMere);
-        $("#stavkaAlert").attr("hidden", true);
+        ocistiFormuZaDodavanjeStavki();
+
+        
     }
     else {
         $("#stavkaAlert").attr("hidden", false);
+        
+        setTimeout(()=>{
+            $("#stavkaAlert").attr("hidden",true);
+        },2000)
     }
 })
 
@@ -173,7 +189,7 @@ $("#dodajStavku").click(e => {
 
 // azuriranje fakuture
 
-$("#dodajFakturu").click(function (e) {
+$("#izmeniFakturu").click(function (e) {
     e.preventDefault();
     if (proveraDatum && proveraPibKupuje && proveraPibProdaje && radSaStavkamaFakture.stavke.length > 0) {
         var datumValute = $("#datumValute").val();
@@ -182,7 +198,7 @@ $("#dodajFakturu").click(function (e) {
         var pibKupuje = $("#pibKupuje").val();
         var tipFakture = $("#tipFakture").val();
         var ukupno = $("#ukupno").val();
-        var stavke = document.querySelectorAll("#stavka");
+        var stavke = document.querySelectorAll(".stavka");
         console.log(stavke);
         radSaFakturama.izmeniFakturu(parseInt(pib), parseInt(pibKupuje), parseInt(pibProdaje), datumValute, datumGenerisanja, stavke, tipFakture)
     }

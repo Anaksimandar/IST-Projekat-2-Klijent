@@ -1,13 +1,18 @@
 var _a;
-import { ajaxSettings } from "./models/ajax.model.js";
 import { Validacija } from "./validacija.class.js";
+import { changeClass } from "./helper-functions/alert.js";
 export class radSaPreduzecima {
     static obrisiPreduzece(pib) {
-        ajaxSettings.url += "/preduzece/" + pib;
-        ajaxSettings.method = "DELETE";
-        $.ajax(ajaxSettings).done((response) => {
-            $(".alert").removeAttr("hidden");
-            $(".alert").text(response);
+        $.ajax({
+            "async": false,
+            "crossDomain": true,
+            "url": "http://localhost:5050/preduzece/" + pib,
+            "method": "DELETE"
+        }).done((response) => {
+            $(".alert").removeAttr("hidden").text(response);
+            setTimeout(() => {
+                $(".alert").attr("hidden", "true");
+            }, 3000);
             console.log(response);
             _a.dostaviPreduzeca();
         })
@@ -82,23 +87,26 @@ export class radSaPreduzecima {
     }
     static filtrirajPreduzeca(unos) {
         if (unos.trim().length == 0) {
-            $(".alert-info").removeAttr('hidden');
-            $(".alert-info").text('Unesite parametre za pretragu');
+            $(".alert-info").removeAttr('hidden').text('Unesite parametre za pretragu');
+            ;
+            setTimeout(() => {
+                $(".alert-info").attr("hidden", true);
+            }, 3000);
             _a.dostaviPreduzeca();
         }
         else {
             $.ajax({
                 "async": true,
                 "crossDomain": true,
-                "url": "http://localhost:5050/preduzece/filtriraj/" + unos.toString(),
+                "url": `http://localhost:5050/preduzece/filtriraj?unos=${encodeURIComponent(unos)}`,
                 "method": "GET",
             }).done((response) => {
                 this.prikazPreduzeca(response);
                 console.log(response);
             })
                 .fail((jqXHR) => {
+                alert('radil');
                 $(".alert-info").removeAttr('hidden');
-                console.log(jqXHR);
                 $(".alert-info").text(jqXHR.responseText);
             });
         }
@@ -144,9 +152,12 @@ radSaPreduzecima.prikazPreduzeca = (preduzeca) => {
 };
 radSaPreduzecima.dostaviPreduzeca = () => {
     _a.prikaz.innerHTML = "";
-    ajaxSettings.method = "GET";
-    ajaxSettings.url = "http://localhost:5050/preduzece";
-    $.ajax(ajaxSettings)
+    $.ajax({
+        "async": false,
+        "crossDomain": true,
+        "url": "http://localhost:5050/preduzece",
+        "method": "GET"
+    })
         .done((response) => {
         _a.prikazPreduzeca(response);
     })
@@ -156,7 +167,7 @@ radSaPreduzecima.dostaviPreduzeca = () => {
         $(".alert").text(err.responseText);
     });
 };
-radSaPreduzecima.dodajPreduzece = (naziv, pib, ime, prezime, ulica, broj, mejl, telefon) => {
+radSaPreduzecima.dodajPreduzece = (alertElement, naziv, pib, ime, prezime, ulica, broj, mejl, telefon) => {
     let odgovornoLice = {
         ime: ime,
         prezime: prezime
@@ -183,12 +194,13 @@ radSaPreduzecima.dodajPreduzece = (naziv, pib, ime, prezime, ulica, broj, mejl, 
         "headers": {
             "Content-Type": "application/json"
         }
-    }).done((response) => {
+    })
+        .done((response) => {
         console.log(response);
         console.log('sve je u redu');
-        $(".alert-success").removeAttr("hidden").text('Preduzece je uspesno dodato');
+        changeClass(alertElement, 'alert-success', 'Preduzece je uspesno dodato', true);
     })
         .fail((jqXHR) => {
-        $("#proveraForme").removeAttr("hidden").text(jqXHR.responseText);
+        changeClass(alertElement, 'alert-danger', jqXHR.responseText, true);
     });
 };

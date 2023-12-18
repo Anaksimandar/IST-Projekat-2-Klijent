@@ -56,7 +56,6 @@ $("#prikaziBilans").click((e) => {
 
 $("#filtrirajPreduzeca ").click((e) => {
     e.preventDefault();
-
     let unos = document.querySelector("#unos").value;
     radSaPreduzecima.filtrirajPreduzeca(unos);
 })
@@ -70,12 +69,11 @@ $(".prikaziBilans").click(function (e) {
 
 // obrisi preduzece
 
-$(".obrisiPreduzece").click(function(e){
-    izabranoPreduzece = e.target.id;
-    alert(e.target);
-    console.log(e.target);
-    radSaPreduzecima.obrisiPreduzece(parseInt(izabranoPreduzece));
+$(".table").on('click','.obrisiPreduzece',function(e){
+  izabranoPreduzece = e.target.id;
+  radSaPreduzecima.obrisiPreduzece(parseInt(izabranoPreduzece));
 })
+
 
 
 

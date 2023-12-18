@@ -18,6 +18,7 @@ export class Validacija {
         return formatiranDatum;
     }
     static kraciZapisDatuma(neobradjenDatum) {
+        console.log(neobradjenDatum);
         let formatiranDatum = neobradjenDatum.split("T")[0];
         return formatiranDatum;
     }

@@ -4,19 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .red{
+            color: red;
+        }
+
+        .blue{
+            color:blue;
+        }
+    </style>
 </head>
 <body>
     <div id="prikaz">
         <h1>Naslov</h1>
     </div>
-    
 
-    <script type="module" src="proba.js">
-       
-    </script>
+    <select name="" id="select">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+    </select>
+    <button id="button">Read</button>
 
     <script>
-         proba();
+        let onInputButton = document.querySelector("#button");
+        let select = document.querySelector("#select");
+        onInputButton.addEventListener('click',function(e){
+            alert(select.value)
+        })
+
+        
+
     </script>
+
+
 </body>
 </html>

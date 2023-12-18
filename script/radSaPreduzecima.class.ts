@@ -1,8 +1,8 @@
 import { Preduzece} from "./models/preduzece.model";
-import { ajaxSettings } from "./models/ajax.model.js";
 import { OdgovornoLice } from "./models/odgovornoLice.model";
 import { Validacija } from "./validacija.class.js";
 import { Adresa } from "./models/adresa.model";
+import { changeClass } from "./helper-functions/alert.js";
 
 export class radSaPreduzecima {
     static prikaz: HTMLElement;
@@ -29,9 +29,15 @@ export class radSaPreduzecima {
 
     static dostaviPreduzeca = () => {
         this.prikaz.innerHTML = "";
-        ajaxSettings.method = "GET";
-        ajaxSettings.url = "http://localhost:5050/preduzece";
-        $.ajax(ajaxSettings)
+        
+        $.ajax(
+            {
+                "async": false,
+                "crossDomain": true,
+                "url": "http://localhost:5050/preduzece",
+                "method": "GET"
+            }
+        )
             .done((response) => {
                 this.prikazPreduzeca(response);
             })
@@ -40,16 +46,22 @@ export class radSaPreduzecima {
                 $(".alert").removeAttr("hidden");
                 $(".alert").text(err.responseText);
             })
-
-
     }
     
     static obrisiPreduzece(pib: number) {
-        ajaxSettings.url += "/preduzece/" + pib;
-        ajaxSettings.method = "DELETE"
-        $.ajax(ajaxSettings).done((response) => {
-            $(".alert").removeAttr("hidden");
-            $(".alert").text(response);
+
+        $.ajax(
+            {
+                "async": false,
+                "crossDomain": true,
+                "url": "http://localhost:5050/preduzece/"+pib,
+                "method": "DELETE"
+            }
+        ).done((response) => {
+            $(".alert").removeAttr("hidden").text(response);
+            setTimeout(()=>{
+                $(".alert").attr("hidden","true");
+            },3000)
             console.log(response);
 
             radSaPreduzecima.dostaviPreduzeca();
@@ -140,7 +152,7 @@ export class radSaPreduzecima {
         }
     }
 
-    static dodajPreduzece = (naziv: string, pib: number, ime: string, prezime: string, ulica: string, broj: number, mejl: string, telefon: string) => {
+    static dodajPreduzece = (alertElement:JQuery,naziv: string, pib: number, ime: string, prezime: string, ulica: string, broj: number, mejl: string, telefon: string) => {
         let odgovornoLice: OdgovornoLice = {
             ime: ime,
             prezime: prezime
@@ -168,30 +180,31 @@ export class radSaPreduzecima {
             "headers": {
                 "Content-Type": "application/json"
             }
-        }).done((response) => {
+        })
+        .done((response) => {
             console.log(response);
             console.log('sve je u redu');
-
-            $(".alert-success").removeAttr("hidden").text('Preduzece je uspesno dodato');
+            changeClass(alertElement,'alert-success','Preduzece je uspesno dodato',true);
 
         })
-            .fail((jqXHR) => {
-                $("#proveraForme").removeAttr("hidden").text(jqXHR.responseText);
-
-            })
+        .fail((jqXHR) => {
+            changeClass(alertElement, 'alert-danger', jqXHR.responseText,true);
+        })
     }
 
     static filtrirajPreduzeca(unos: string) {
         if (unos.trim().length == 0) {
-            $(".alert-info").removeAttr('hidden');
-            $(".alert-info").text('Unesite parametre za pretragu');
+            $(".alert-info").removeAttr('hidden').text('Unesite parametre za pretragu');;
+            setTimeout(()=>{
+                $(".alert-info").attr("hidden",true);
+            },3000)
             radSaPreduzecima.dostaviPreduzeca();
         }
         else {
             $.ajax({
                 "async": true,
                 "crossDomain": true,
-                "url": "http://localhost:5050/preduzece/filtriraj/" + unos.toString(),
+                "url": `http://localhost:5050/preduzece/filtriraj?unos=${encodeURIComponent(unos)}`,
                 "method": "GET",
 
             }).done((response) => {
@@ -199,13 +212,11 @@ export class radSaPreduzecima {
                 console.log(response);
 
             })
-                .fail((jqXHR) => {
-                    $(".alert-info").removeAttr('hidden');
-                    console.log(jqXHR);
-
-                    $(".alert-info").text(jqXHR.responseText);
-
-                })
+            .fail((jqXHR) => {
+                alert('radil')
+                $(".alert-info").removeAttr('hidden');
+                $(".alert-info").text(jqXHR.responseText);
+            })
         }
 
 

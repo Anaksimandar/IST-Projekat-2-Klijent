@@ -38,12 +38,12 @@
                     <h2 class="my-4">Dodavanje fakture</h2>
                     <div class="row">
                       <div class="col">
-                        <input type="number" id="pibProdaje" name="pibProdaje" class="form-control" required
+                        <input type="number" id="pibProdaje" min="0" max="999999999" name="pibProdaje" class="form-control" required
                           placeholder="PIB preduzeca(prodaje)">
                         <div hidden id="pibProdajeAlert" class="alert alert-danger">PIB mora da sadrzi 9 cifara</div>
                       </div>
                       <div class="col">
-                        <input  type="number" id="pibKupuje" name="pibKupuje" required class="form-control"
+                        <input  type="number" id="pibKupuje" min="0" max="999999999" name="pibKupuje" required class="form-control"
                           placeholder="PIB preduzeca(kupuje)">
                         <div hidden id="pibKupujeAlert" class="alert alert-danger">PIB mora da sadrzi 9 cifara</div>
                       </div>
@@ -79,8 +79,7 @@
                       </div>
                     </div>
                   
-                    <div hidden id="uspesnoDodavanjeFakture" class="alert alert-success"></div>
-                    <div hidden id="neuspesnoDodavanjeFakture" class="alert alert-danger"></div>
+                    <div hidden id="dodajFakturuAlert" class="alert"></div>
                   </div>
               </form>
                   <!--Kraj 1. sekcije-->
@@ -99,26 +98,31 @@
                         <tbody id="prikazStavki"></tbody>
                       </table>
                     </div>
-                    <form>
+                    
                       <div class="row my-4">
                         <div class="col">
-                          <input required class="form-control" id="naziv" type="text" name="naziv" placeholder="Unesite naziv stavke">
+                          <input required class="form-control" id="nazivStavke" type="text" name="naziv" placeholder="Unesite naziv stavke">
                           <div hidden id="nazivStavkeAlert" class="alert alert-danger">Naziv mora sadrzati bar 2 karaktera</div>
                         </div>
                         <div class="col">
-                          <input required class="form-control" min="1" id="cena" type="number" name="cena" placeholder="Unesite cenu stavke">
+                          <input required class="form-control" min="1" id="cenaStavke" type="number" name="cena" placeholder="Unesite cenu stavke">
                           <div hidden id="cenaStavkeAlert" class="alert alert-danger">Ovo polje ne sme biti prazno</div>
                         </div>
                       </div>
                       <div class="row my-4">
                         <div class="col">
-                          <input required class="form-control" min="1" id="kolicina" type="number" name="kolicina"
+                          <input required class="form-control" min="1" id="kolicinaStavke" type="number" name="kolicina"
                             placeholder="Unesite kolicinu">
                           <div hidden id="kolicinaStavkeAlert" class="alert alert-danger">Ovo polje ne sme biti prazno</div>
                         </div>
                         <div class="col">
-                          <input required class="form-control" id="jedinicaMere" type="text" name="jedinicaMere"
-                            placeholder="Unesite jedinicu mere">
+                          <select class="form-select" name="jedinicaStavke" id="jedinicaStavke">
+                            <option value="kg">kg</option>
+                            <option value="gram">g</option>
+                            <option value="komad">komad</option>
+                            <option value="litar">litar</option>
+                            <option value="ml">ml</option>
+                          </select>
                           <div hidden id="jedinicaStavkeAlert" class="alert alert-danger">Ovo polje ne sme biti prazno</div>
                         </div>
                       </div>
@@ -127,8 +131,8 @@
                           <button id="dodajStavku" class="btn btn-success">Dodaj stavku</button>
                         </div>
                       </div>
-                      <div hidden id="stavkaAlert" class="alert alert-danger">Proverite unete podatke</div>
-                    </form>
+                      <div hidden id="stavkaAlert" class="alert alert-danerg"></div>
+                    
                     
                   </div>
                   
@@ -143,158 +147,4 @@
     </div>
 </body>
 </html>
-<script src="./klijent.js"></script>
-<script>
-  // validacija unosa
-
-  var proveraPibKupuje = false;
-  var proveraPibProdaje = false;
-  var proveraDatum = false;
-
-  // provera stavki
-
-  var proveraNazivStavke = false;
-  var proveraCenaStavke = false;
-  var proveraJedinicaStavke = false;
-  var proveraKolicina = false;
-
-
-  // provera pib prodaje
-    $("#pibProdaje").keyup(() => {
-      if($("#pibProdaje").val().length != 9) {
-        $("#pibProdajeAlert").attr("hidden", false);
-        proveraPibProdaje = false;
-      }
-      else {
-        $("#pibProdajeAlert").attr("hidden", true);
-        proveraPibProdaje = true;
-      }
-    })
-
-    // provera pib kupuje
-    $("#pibKupuje").keyup(() => {
-      if($("#pibKupuje").val().length != 9) {
-        $("#pibKupujeAlert").attr("hidden", false);
-        proveraPibKupuje = false;
-      }
-      else {
-        $("#pibKupujeAlert").attr("hidden", true);
-        proveraPibKupuje = true;
-      }
-    })
-
-    //provera datuma
-
-    $("input[type=date]").change(()=>{
-      var datum1 = new Date($("#datumGenerisanja").val());
-      var datum2 = new Date($("#datumValute").val());
-
-      if (datum2 < datum1) {
-        $("#datumAlert").attr("hidden", false);
-        proveraDatum = false;
-      }
-      else {
-        $("#datumAlert").attr("hidden", true);
-        proveraDatum = true;
-      }
-    })
-
-
-
-    // provera naziva stavke
-    $("#naziv").keyup(() => {
-      if($("#naziv").val().length < 2) {
-        $("#nazivStavkeAlert").attr("hidden", false);
-        proveraNazivStavke = false;
-      }
-      else {
-        $("#nazivStavkeAlert").attr("hidden", true);
-        proveraNazivStavke = true;
-      }
-    })
-
-    // provera cene stavke
-    $("#cena").keyup(() => {
-      if($("#cena").val().length == 0) {
-        $("#cenaStavkeAlert").attr("hidden", false);
-        proveraCenaStavke = false;
-      }
-      else {
-        $("#cenaStavkeAlert").attr("hidden", true);
-        proveraCenaStavke = true;
-      }
-    })
-
-    // provera kolicine stavke
-    $("#kolicina").keyup(() => {
-      if($("#kolicina").val().length = 0) {
-        $("#kolicinaStavkeAlert").attr("hidden", false);
-        proveraKolicina = false;
-      }
-      else {
-        $("#kolicinaStavkeAlert").attr("hidden", true);
-        proveraKolicina = true;
-      }
-    })
-
-    // provera jedinice mere stavke
-    $("#jedinicaMere").keyup(() => {
-      if($("#jedinicaMere").val().length == 0) {
-        $("#jedinicaStavkeAlert").attr("hidden", false);
-        proveraJedinicaStavke = false;
-      }
-      else {
-        $("#jedinicaStavkeAlert").attr("hidden", true);
-        proveraJedinicaStavke = true;
-      }
-    })
-
-
-  radSaStavkamaFakture.prikaz = document.querySelector("#prikazStavki");
-  $("#dodajStavku").click((e)=>{
-      
-      e.preventDefault();
-      if(proveraCenaStavke && proveraJedinicaStavke && proveraNazivStavke && proveraKolicina){
-        
-        let naziv = $("#naziv").val();
-        let cena = parseInt($("#cena").val());
-        let kolicina = parseInt($("#kolicina").val());
-        let jedinicaMere = $("#jedinicaMere").val();
-        //let ukupno = document.querySelector("#ukupno");
-        radSaStavkamaFakture.prikazUkupno = ukupno;
-        radSaStavkamaFakture.dodajStavku(naziv, cena, kolicina, jedinicaMere);
-        $("#stavkaAlert").attr("hidden", true);
-      }
-      else{
-        $("#stavkaAlert").attr("hidden",false);
-      }
-      
-  })
-
-  $(".btn btn-danger").on('click',(e)=>{
-    e.preventDefault();
-  })
-
-  $("#dodajFakturu").on('click',(e)=>{
-    e.preventDefault();
-    if(proveraPibKupuje && proveraPibProdaje && proveraDatum && proveraCenaStavke && proveraJedinicaStavke && proveraKolicina && proveraNazivStavke){
-      let elementi = document.querySelectorAll("#stavka");
-      let pibPreduzecaKupuje = document.querySelector("#pibKupuje").value;
-      let pibPreduzecaProdaje = document.querySelector("#pibProdaje").value;
-      let datumValute = document.querySelector("#datumValute").value;
-
-
-      let datumGenerisanja = document.querySelector("#datumGenerisanja").value;
-      let tipFakture = document.querySelector("#tipFakture").value;
-      radSaFakturama.dodajFakturu(pibPreduzecaKupuje, pibPreduzecaProdaje, datumValute, datumGenerisanja, elementi, tipFakture);
-      $("#neuspesnoDodavanjeFakture").attr("hidden", true);
-    }
-    else{
-      $("#neuspesnoDodavanjeFakture");
-      $("#neuspesnoDodavanjeFakture").attr("hidden", false).text("Proverite podatke");
-    }
-
-    
-  })
-    
-</script>
+<script type="module" src="./script/dodajFakturu.main.js"></script>

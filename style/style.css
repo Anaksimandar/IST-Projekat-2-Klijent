@@ -5,19 +5,32 @@
 .page-link{
     color: aqua;
     font-weight: 500;
+    margin:0px 2px;
+    border: 2px solid transparent;
 }
-
 .page-link:hover{
-    background-color: aqua;
+    background-color: #0dcaf0;
     color: white;
+    border: 2px solid transparent;
 }
 
 /*Paganizacija*/
 
 .active{
     background-color: #0dcaf0!important;
+    border-color: transparent!important;
     color: white!important;
 }
+#next, #previous{
+    border: 2px solid transparent;
+}
+#next:hover, #previous:hover{
+    background-color: white;
+    border: 2px solid #0dcaf0;
+    color: #0dcaf0!important;
+    transition: 0.3s;
+}
+
 
 .btn-info{
     color: white!important;

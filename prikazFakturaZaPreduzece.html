@@ -34,7 +34,7 @@
         <div class="container-fluid my-4">
           <div class="row">
             <div class="col">
-              <input id="filtrirajFakture" class="form-control" placeholder="Unesite iznos fakture ili naziv stavke fakture" type="text">
+              <input id="unos" class="form-control" placeholder="Unesite iznos fakture ili naziv stavke fakture" type="text">
             </div>
             <div class="col">
               <button id="pretraga" class="btn btn-primary">Pretraži</button>
@@ -53,8 +53,9 @@
                 <th>Tip fakture</th>
               </tr>
             </thead>
-            <tbody id="prikazFakture"></tbody>
+            <tbody id="prikazFaktura"></tbody>
           </table>
+          <div class="alert alert-info" hidden id="obavestenje"></div>
           
           <div hidden id="uspesnoBrisanjeFaktureAlert" class="alert alert-info"></div>
           <div hidden class="alert alert-warning"></div>
@@ -63,20 +64,21 @@
               <div class="d-flex justify-content-around">
                 <nav aria-label="Page navigation example">
                   <ul class="pagination">
-                    <li><button class="btn btn-info" id="previous">Previous</button></li>
+                    <li><button class="btn btn-info mx-1" id="previous">Previous</button></li>
                     <div id="prikazStranica">
                     </div>
-                    <li><button class="btn btn-info" id="next">Next</button></li>
+                    <li><button class="btn btn-info mx-1" id="next">Next</button></li>
                   </ul>
                 </nav>
               </div>
             </div>
+            <div>
+              <h5 id="rezultatiPretrage" class="d-flex justify-content-around">Rezultati pretrage:</h5>
+            </div>
           </div>
       </div>
       
-      <div>
-        <h5 id="rezultatiPretrage" class="d-flex justify-content-around">Rezultati pretrage:</h5>
-      </div>
+      
       </main>
 </div>
 <!-- Button trigger modal -->

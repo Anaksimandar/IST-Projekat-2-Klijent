@@ -3,33 +3,32 @@ import { StavkeFakture } from './models/stavkeFakture.model.js'
 export class radSaStavkamaFakture {
 
     static stavke: Array<StavkeFakture> = [];
-    static prikaz: HTMLElement;
+    static prikaz: JQuery;
     static prikazUkupno: JQuery;
 
     static prikazStavki = () => {
-        this.prikaz.innerHTML = "";
+        this.prikaz.html("");
         console.log(this.stavke);
 
         let ukupno = 0;
         this.stavke.forEach(s => {
-            this.prikaz.innerHTML +=
+            this.prikaz.append(
                 `
-                    <tr id="stavka">
+                    <tr class="stavka">
                         <th scope="col">${s.naziv}</th>
                         <th scope="col">${s.cena}</th>
                         <th scope="col">${s.jedinicaMere}</th>
                         <th scope="col">${s.kolicina}</th>
                         <th scope="col"><button id=${s.idStavke} class='btn btn-danger obrisiStavku'>Ukloni</button></th>
-                        <th scope="col" hidden>${s.idStavke}</th>
                     </tr>
-                `;
-
+                `
+            );
             ukupno += s.kolicina * s.cena;
         });
 
         console.log(ukupno);
 
-        this.prikazUkupno.val(ukupno.toString());
+        this.prikazUkupno.val(ukupno);
 
     }
 

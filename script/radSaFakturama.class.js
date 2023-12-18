@@ -2,6 +2,7 @@ var _a;
 import { izlistavanjeFaktura } from "./izlisatavanjeFaktura.class.js";
 import { ajaxSettings } from "./models/ajax.model.js";
 import { Validacija } from "./validacija.class.js";
+import { changeClass } from "./helper-functions/alert.js";
 export class radSaFakturama {
     // Potrebno je prikazati fakture po strani (jedna faktura jedna strana) kao i pretrazivanje po 
     // iznosu fakture i po stavkama fakture
@@ -47,6 +48,7 @@ export class radSaFakturama {
         ajaxSettings.method = "GET";
         $.ajax(ajaxSettings)
             .done((response) => {
+            console.log(response, 'stavke');
             $("#prikazStavki").html("");
             response.forEach(s => {
                 $("#prikazStavki").append(`
@@ -71,8 +73,10 @@ export class radSaFakturama {
             "url": "http://localhost:5050/faktura/" + idFakture,
             "method": "DELETE",
         }).done((response) => {
-            $("#uspesnoBrisanjeFaktureAlert").removeAttr("hidden");
-            $("#uspesnoBrisanjeFaktureAlert").text("Faktura je uspesno obrisana");
+            $("#uspesnoBrisanjeFaktureAlert").removeAttr("hidden").text("Faktura je uspesno obrisana");
+            setInterval(() => {
+                $("#uspesnoBrisanjeFaktureAlert").attr("hidden", "false");
+            }, 3000);
             this.fakture = response;
         })
             .fail((err) => {
@@ -138,13 +142,14 @@ export class radSaFakturama {
             "method": "GET",
         }).done((response) => {
             pronadjenaFaktura = response;
+            console.log(pronadjenaFaktura);
         })
             .fail((jqXHR, responseText) => {
             alert("Faktura ne postoji" + responseText);
         });
         return pronadjenaFaktura;
     }
-    static dodajFakturu(pibPreduzecaKupuje, pibPreduzecaProdaje, datumValute, datumGenerisanja, elementi, tipFakture) {
+    static dodajFakturu(dodajFakturuAlert, pibPreduzecaKupuje, pibPreduzecaProdaje, datumValute, datumGenerisanja, elementi, tipFakture) {
         let listaStavki = [];
         let formatiranDatumValute = Validacija.stringToDate(datumValute);
         let formatiranDatumGenerisanja = Validacija.stringToDate(datumGenerisanja);
@@ -155,7 +160,7 @@ export class radSaFakturama {
         let ukupno = Number($("#ukupno").val());
         elementi.forEach(e => {
             let deca = e.children;
-            var id = parseInt(deca[5].innerHTML);
+            var id = parseInt(deca[4].children[0].id);
             var naziv = deca[0].innerHTML;
             var cena = parseInt(deca[1].innerHTML);
             var jedinicaMere = deca[2].innerHTML;
@@ -191,11 +196,18 @@ export class radSaFakturama {
                     "Content-Type": "application/json"
                 }
             }).done((jqXHR) => {
-                $("#obavestenjeDodavanjeFaktureUspesno").removeAttr('hidden').text(jqXHR);
+                changeClass(dodajFakturuAlert, 'alert-success', 'Uspesno ste dodali novu fakturu.', true);
+                // $("#obavestenjeDodavanjeFaktureUspesno").removeAttr('hidden').text(jqXHR);
+                // setTimeout(()=>{
+                //     $("#obavestenjeDodavanjeFaktureUspesno").attr("hidden",true);
+                // },3000)
             })
                 .fail((jqXHR) => {
-                console.log(jqXHR);
-                $("#obavestenjeDodavanjeFaktureGreska").removeAttr('hidden').text(jqXHR.responseText);
+                changeClass(dodajFakturuAlert, 'alert-danger', jqXHR.responseText, true);
+                // $("#obavestenjeDodavanjeFaktureGreska").removeAttr('hidden').text(jqXHR.responseText);
+                // setTimeout(()=>{
+                //     $("#obavestenjeDodavanjeFaktureGreska").removeAttr('hidden').text(jqXHR.responseText);
+                // },3000)
             });
         }
         else {
@@ -207,11 +219,12 @@ export class radSaFakturama {
         $.ajax({
             "async": true,
             "crossDomain": true,
-            "url": "http://localhost:5050/faktura/filtriraj/" + unos.toString(),
+            "url": `http://localhost:5050/faktura/filtriraj/?unos=${encodeURIComponent(unos)}`,
             "method": "GET"
         }).done((response) => {
             _a.filtriraneFakture = response;
-            _a.prikazFaktura(_a.filtriraneFakture);
+            console.log(this.filtriraneFakture, 'filter');
+            _a.prikazFaktura(this.filtriraneFakture);
         })
             .fail((jqXHR) => {
             console.log(jqXHR);
@@ -225,7 +238,6 @@ radSaFakturama.dostaviFakture = () => {
     ajaxSettings.url = "http://localhost:5050/faktura";
     $.ajax(ajaxSettings)
         .done((response) => {
-        console.log(response);
         _a.prikazFaktura(response);
     })
         .fail((err) => {
